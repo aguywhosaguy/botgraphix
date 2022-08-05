@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 
-const client = new Client({ intens: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 
 const commandspath = path.join(__dirname, 'commands');
@@ -14,7 +14,7 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-client.on('ready', () => {
+client.once('ready', () => {
     console.log('Ready!');
 })
 
@@ -39,3 +39,5 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isModalSubmit) return;
     console.log("modal submitted");
 })
+
+client.login(process.env.TOKEN);
