@@ -47,7 +47,47 @@ client.on('interactionCreate', async (interaction) => {
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isModalSubmit()) return;
     if (interaction.customId === "bugreport") {
-        
+        let bug = interaction.fields.getTextInputValue("bugname")
+        let location = interaction.fields.getTextInputValue("bugwhere")
+        let threatlevel = interaction.fields.getTextInputValue("bugthreatlevel")
+        let imageurl = interaction.fields.getTextInputValue("bugimage")
+        let msg = ""
+        console.log(interaction.guildId)
+        let find = await db.collection("settings").findOne({_id: interaction.guildId})
+        channel = client.channels.cache.get(find.bugreportchannel)
+        console.log(channel)
+        if (channel) {
+            msg += "Bug: " + bug + "\n"
+            msg += "Where: " + location + "\n"
+            msg += "Threat Level: "
+            switch (threatlevel) {
+                case "1":
+                    msg += "█░░░░"
+                    break;
+                case "2":
+                    msg += "██░░░"
+                    break;
+                case "3":
+                    msg += "███░░"
+                    break;
+                case "4":
+                    msg += "████░"
+                    break;
+                case "5":
+                    msg += "█████"
+                    break;
+                default:
+                    msg += "N/A"
+                    break;
+            }
+            msg += "\n"
+            msg += imageurl
+            await interaction.reply({ content: "Bug report sent!", ephemeral: true })
+            channel.send(msg)
+        } else {
+            await interaction.reply({ content: 'There is no bug report channel set.', ephemeral: true });
+        }
+
     }
 })
 

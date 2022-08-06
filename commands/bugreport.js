@@ -16,7 +16,12 @@ const BugThreatLevel = new TextInputBuilder()
 .setCustomId('bugthreatlevel')
 .setLabel('Threat Level (Must be a number between 1-5)')
 .setStyle(TextInputStyle.Short)
-modal.addComponents(new ActionRowBuilder().addComponents(BugName), new ActionRowBuilder().addComponents(BugWhere), new ActionRowBuilder().addComponents(BugThreatLevel));
+
+const BugImageRaw = new TextInputBuilder()
+.setCustomId('bugimage')
+.setLabel('Image: (Must be a raw image URL)')
+.setStyle(TextInputStyle.Short);
+modal.addComponents(new ActionRowBuilder().addComponents(BugName), new ActionRowBuilder().addComponents(BugWhere), new ActionRowBuilder().addComponents(BugThreatLevel), new ActionRowBuilder().addComponents(BugImageRaw));
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('bugreport')

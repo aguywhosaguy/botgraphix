@@ -85,8 +85,46 @@ module.exports = {
                         }
                         break;
                     case 'bugreport':
+                        let collected = false
                         if (count == 1) {
                             count += 1
+                            if (find.bugreportchannel == 0) {
+                                await interaction.reply("No bug report channel exists. Please send the ID of the channel you wish to set it to.");
+                                interaction.channel.createMessageCollector({ time: 360000 })
+                                    .on('collect', (message) => {
+                                        if (message.author.id === interaction.user.id && !collected) {
+                                            let channel = interaction.member.guild.channels.cache.get(message.content);
+                                            if (channel) {
+                                                col.updateOne({_id: interaction.member.guild.id}, {$set: {bugreportchannel: channel.id}});
+                                                interaction.followUp(`Bug report channel set to ${channel.toString()}`), { ephemeral: true };
+                                                collected = true;
+                                            } else {
+                                                interaction.followUp("Invalid channel."), { ephemeral: true };
+                                            }
+                                        }
+                                    })
+                            } else {
+                                await interaction.reply("Current bug report channel: " + interaction.member.guild.channels.cache.get(find.bugreportchannel).toString() + "\nIn order to set the bug report channel, please send the ID of the channel you wish to set it to."), { ephemeral: true };
+                                interaction.channel.createMessageCollector({ time: 360000 })
+                                    .on('collect', (message) => {
+                                        if (message.author.id === interaction.user.id && !collected) {
+                                            let channel = interaction.member.guild.channels.cache.get(message.content);
+                                            if (channel) {
+                                                if (channel.id != find.bugreportchannel) {
+                                                    col.updateOne({_id: interaction.member.guild.id}, {$set: {bugreportchannel: channel.id}});
+                                                    interaction.followUp(`Bug report channel set to ${channel.toString()}`), { ephemeral: true };
+                                                    collected = true;
+                                                } else {
+                                                    interaction.followUp("Removed bug report channel."), { ephemeral: true };
+                                                    col.updateOne({_id: interaction.member.guild.id}, {$set: {bugreportchannel: 0}});
+                                                    collected = true;
+                                                }
+                                            } else {
+                                                interaction.followUp("Invalid channel."), { ephemeral: true };
+                                            }
+                                        }
+                                    })
+                            }
                         }
                 }
             }
