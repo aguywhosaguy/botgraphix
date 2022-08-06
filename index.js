@@ -7,7 +7,7 @@ const uri = process.env.MONGO;
 const mclient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 const db = mclient.db("discord");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions],
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.MessageContent],
 partials: [Partials.Channel, Partials.Reaction, Partials.Message] });
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
@@ -46,7 +46,9 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isModalSubmit()) return;
-    console.log("modal submitted");
+    if (interaction.customId === "bugreport") {
+        
+    }
 })
 
 client.on('messageReactionAdd', async (reaction, user) => {
@@ -59,15 +61,21 @@ client.on('messageReactionAdd', async (reaction, user) => {
             return;
         }
     }
-
-    let guild = reaction.message.guildId;
-    let find = await db.collection("detectors").findOne({_id: guild});
-    if (find) {
-        for (const detector of find.detectors) {
-            if (detector.emoji == reaction.emoji.name) {
-                const channel = client.channels.cache.get(detector.channel);
-                if (channel) {
-                    await channel.send(reaction.message.content);
+    if (reaction.message.author.id == client.user.id) {
+        return
+    } else {
+        console.log(reaction)
+        let guild = reaction.message.guildId;
+        let find = await db.collection("settings").findOne({_id: guild});
+        if (find) {
+            for (let i = 0; i < find.detectors.length; i++) {
+                let detector = find.detectors[i];
+                if (detector.emoji == reaction.emoji.name) {
+                    const channel = client.channels.cache.get(detector.channel);
+                    if (channel) {
+                        console.log(reaction.message.content)
+                        await channel.send(reaction.message.content);
+                    }
                 }
             }
         }
